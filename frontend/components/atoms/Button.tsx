@@ -17,20 +17,20 @@ export default function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-98';
+  const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-md transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-ink/5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-98';
   
   const variants = {
-    primary: 'bg-primary hover:bg-primary/90 text-white shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 glow-border',
-    secondary: 'bg-secondary hover:bg-secondary/90 text-white shadow-lg shadow-pink-500/20 hover:shadow-pink-500/40 glow-border-secondary',
-    outline: 'border border-gray-700 light:border-slate-300 bg-transparent hover:bg-gray-800 light:hover:bg-slate-200 text-gray-200 light:text-slate-700 hover:text-white light:hover:text-slate-900',
-    danger: 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20 hover:shadow-red-500/40',
-    ghost: 'bg-transparent hover:bg-gray-800/50 light:hover:bg-slate-200/50 text-gray-400 light:text-slate-500 hover:text-white light:hover:text-slate-800',
+    primary: 'bg-primary hover:bg-primary-hover active:bg-primary-active text-on-primary border border-transparent shadow-sm',
+    secondary: 'bg-secondary hover:bg-secondary-hover text-on-secondary border border-hairline shadow-sm',
+    outline: 'bg-transparent border border-hairline hover:bg-surface-soft text-ink',
+    danger: 'bg-error hover:bg-error/90 text-white border border-transparent shadow-sm',
+    ghost: 'bg-transparent hover:bg-surface-soft text-muted hover:text-ink',
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-5 py-2.5 text-base',
-    lg: 'px-8 py-3.5 text-lg',
+    sm: 'px-3.5 py-1.5 text-xs h-9',
+    md: 'px-5 py-2.5 text-sm h-10',
+    lg: 'px-7 py-3 text-base h-12',
   };
 
   const widthStyle = fullWidth ? 'w-full' : '';

@@ -12,12 +12,12 @@ export default function Badge({
   className = '',
 }: BadgeProps) {
   const styles = {
-    primary: 'bg-violet-500/10 text-violet-300 light:text-violet-700 light:border-violet-500/30 border border-violet-500/20',
-    secondary: 'bg-pink-500/10 text-pink-300 light:text-pink-700 light:border-pink-500/30 border border-pink-500/20',
-    success: 'bg-emerald-500/10 text-emerald-300 light:text-emerald-700 light:border-emerald-500/30 border border-emerald-500/20',
-    warning: 'bg-amber-500/10 text-amber-300 light:text-amber-700 light:border-amber-500/30 border border-amber-500/20',
-    danger: 'bg-red-500/10 text-red-300 light:text-red-700 light:border-red-500/30 border border-red-500/20',
-    info: 'bg-cyan-500/10 text-cyan-300 light:text-cyan-700 light:border-cyan-500/30 border border-cyan-500/20',
+    primary: 'bg-surface-card text-ink border border-hairline',
+    secondary: 'bg-badge-pink/10 text-badge-pink border border-badge-pink/20',
+    success: 'bg-badge-emerald/10 text-badge-emerald border border-badge-emerald/20',
+    warning: 'bg-badge-orange/10 text-badge-orange border border-badge-orange/20',
+    danger: 'bg-error/10 text-error border border-error/20',
+    info: 'bg-badge-violet/10 text-badge-violet border border-badge-violet/20',
   };
 
   return (

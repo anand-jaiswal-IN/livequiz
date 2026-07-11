@@ -115,28 +115,28 @@ export default function AuthForm({ type }: AuthFormProps) {
   const activeError = error || localError;
 
   return (
-    <div className="glass-panel w-full max-w-md p-8 rounded-3xl border border-violet-500/10">
+    <div className="w-full max-w-md p-8 rounded-lg border border-hairline bg-canvas shadow-md">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-extrabold text-white light:text-slate-800 tracking-tight mb-2">
+        <h2 className="text-2xl font-bold text-ink tracking-tight mb-2 font-display-sm">
           {type === "login" ? "Welcome Back" : "Create Account"}
         </h2>
-        <p className="text-gray-400 light:text-slate-500 text-sm">
+        <p className="text-muted text-sm font-medium">
           {type === "login"
             ? "Sign in to manage and launch your quizzes"
             : otpSent 
               ? "Verify your email to complete registration"
-              : "Register to start creating live interactive quizzes"}
+              : "Register to start hosting live interactive quizzes"}
         </p>
       </div>
 
       {activeError && (
-        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium animate-slide-up">
+        <div className="mb-6 p-4 rounded-md bg-error/10 border border-error/20 text-error text-xs font-semibold animate-slide-up">
           ⚠️ {activeError}
         </div>
       )}
 
       {successMessage && (
-        <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium animate-slide-up">
+        <div className="mb-6 p-4 rounded-md bg-success/10 border border-success/20 text-success text-xs font-semibold animate-slide-up">
           ✓ {successMessage}
         </div>
       )}
@@ -180,7 +180,7 @@ export default function AuthForm({ type }: AuthFormProps) {
 
         {type === "login" && (
           <div className="flex justify-end text-xs -mt-2">
-            <Link href="/auth/forgot-password" className="text-violet-400 hover:text-violet-300 font-semibold transition-colors">
+            <Link href="/auth/forgot-password" className="text-accent font-semibold hover:underline">
               Forgot password?
             </Link>
           </div>
@@ -203,7 +203,7 @@ export default function AuthForm({ type }: AuthFormProps) {
             type="button"
             onClick={handleSendOtp}
             disabled={otpLoading}
-            className="text-xs text-left text-violet-400 hover:text-violet-300 font-semibold transition-colors"
+            className="text-xs text-left text-accent font-semibold hover:underline"
           >
             {otpLoading ? "Resending..." : "Didn't receive OTP? Resend"}
           </button>
@@ -211,34 +211,34 @@ export default function AuthForm({ type }: AuthFormProps) {
 
         <Button
           type="submit"
-          variant={type === "login" ? "primary" : "secondary"}
+          variant="primary"
           isLoading={loading || otpLoading}
           fullWidth
-          className="mt-2 py-3"
+          className="mt-2"
         >
           {type === "login" ? "Sign In" : otpSent ? "Verify & Register" : "Send Verification OTP"}
         </Button>
       </form>
 
-      <div className="text-center mt-6 text-sm text-gray-500 light:text-slate-500 font-medium">
+      <div className="text-center mt-6 text-xs text-muted font-medium">
         {type === "login" ? (
           <>
             <div>
               Don&apos;t have an account?{" "}
               <Link
                 href="/auth/signup"
-                className="text-violet-400 light:text-violet-600 hover:text-violet-300 light:hover:text-violet-800 font-bold transition-colors"
+                className="text-ink font-bold hover:underline"
               >
                 Sign up
               </Link>
             </div>
-            <div className="mt-3 text-xs">
+            <div className="mt-3 text-[11px] text-muted-soft">
               Forgot{" "}
-              <Link href="/auth/forgot-username" className="text-violet-400 hover:text-violet-300 font-bold transition-colors">
+              <Link href="/auth/forgot-username" className="text-accent font-semibold hover:underline">
                 username
               </Link>{" "}
               or{" "}
-              <Link href="/auth/forgot-email" className="text-violet-400 hover:text-violet-300 font-bold transition-colors">
+              <Link href="/auth/forgot-email" className="text-accent font-semibold hover:underline">
                 email
               </Link>
               ?
@@ -249,7 +249,7 @@ export default function AuthForm({ type }: AuthFormProps) {
             Already have an account?{" "}
             <Link
               href="/auth/login"
-              className="text-pink-400 light:text-pink-600 hover:text-pink-300 light:hover:text-pink-800 font-bold transition-colors"
+              className="text-ink font-bold hover:underline"
             >
               Sign in
             </Link>

@@ -18,15 +18,15 @@ export default function ProgressBar({
   const percentage = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0;
   
   const colors = {
-    primary: 'bg-primary shadow-lg shadow-violet-500/30',
-    secondary: 'bg-secondary shadow-lg shadow-pink-500/30',
-    accent: 'bg-accent shadow-lg shadow-emerald-500/30',
-    danger: 'bg-red-500 shadow-lg shadow-red-500/30',
+    primary: 'bg-primary',
+    secondary: 'bg-badge-pink',
+    accent: 'bg-badge-emerald',
+    danger: 'bg-error',
   };
 
   return (
     <div className={`w-full flex flex-col gap-1 ${className}`}>
-      <div className="w-full h-3 bg-gray-900 light:bg-slate-200 border border-gray-800 light:border-slate-300 rounded-full overflow-hidden">
+      <div className="w-full h-2 bg-surface-strong rounded-full overflow-hidden">
         <div
           className={`h-full transition-all duration-300 ease-out ${colors[color]}`}
           style={{ width: `${percentage}%` }}
