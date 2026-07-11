@@ -32,11 +32,11 @@ LiveQuiz is a gamified live quiz conduction platform designed for hosts and play
 
 ## Screenshots
 
-![Screenshot 1](./screenshots/1.png)
-![Screenshot 2](./screenshots/2.png)
-![Screenshot 3](./screenshots/3.png)
-![Screenshot 4](./screenshots/4.png)
-![Screenshot 5](./screenshots/5.png)
+![Screenshot 1](./screenshots/theme/2/1.png)
+![Screenshot 2](./screenshots/theme/2/2.png)
+![Screenshot 3](./screenshots/theme/2/3.png)
+![Screenshot 4](./screenshots/theme/2/4.png)
+![Screenshot 5](./screenshots/theme/2/5.png)
 
 
 ## ⚙️ Environment Configurations
