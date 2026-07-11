@@ -13,6 +13,11 @@ services:
       - mongodb-data:/data/db
     networks:
       - livequiz-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     restart: unless-stopped
 
   # 2. Redis Cache
@@ -25,6 +30,11 @@ services:
       - redis-data:/data
     networks:
       - livequiz-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     restart: unless-stopped
 
   # 3. Backend Express API Server
@@ -33,6 +43,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: livequiz-backend
+    init: true
     ports:
       - "8000:8000"
     environment:
@@ -45,6 +56,11 @@ services:
       - redis
     networks:
       - livequiz-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     restart: unless-stopped
 
   # 4. Frontend Next.js Web Client
@@ -55,6 +71,7 @@ services:
       args:
         - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
     container_name: livequiz-frontend
+    init: true
     ports:
       - "3000:3000"
     environment:
@@ -64,6 +81,11 @@ services:
       - backend
     networks:
       - livequiz-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     restart: unless-stopped
 
 volumes:

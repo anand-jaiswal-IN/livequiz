@@ -1,23 +1,23 @@
 # Base stage for caching dependencies
-FROM oven/bun:1-alpine AS base
+FROM node:22-alpine AS base
 WORKDIR /app
 
-# Cache dependencies separately
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+# Cache dependencies separately by copying package.json only (avoid lockfile mismatch)
+COPY package.json ./
+RUN npm install
 
 # Builder stage for compiling TypeScript
 FROM base AS builder
 COPY . .
-RUN bun run build
+RUN npm run build
 
 # Production runner stage
-FROM oven/bun:1-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
-# Copy production node_modules and built assets
-COPY package.json bun.lock ./
-RUN bun install --production --frozen-lockfile
+# Copy built dist files and production dependencies
+COPY package.json ./
+RUN npm install --only=production
 COPY --from=builder /app/dist ./dist
 
 # Configure runtime environment
@@ -25,5 +25,5 @@ ENV PORT=8000
 ENV NODE_ENV=production
 EXPOSE 8000
 
-# Start server using Bun
-CMD ["bun", "dist/server.js"]
+# Start server using Node.js
+CMD ["node", "dist/server.js"]
