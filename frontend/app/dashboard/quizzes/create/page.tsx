@@ -26,23 +26,21 @@ export default function CreateQuizPage() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="flex flex-col gap-6 max-w-4xl mx-auto">
-        <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            Create New Quiz
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">
-            Build customized questions, options, select correct answers, and set timers.
-          </p>
-        </div>
-        
-        <QuizEditor
-          onSave={handleSave}
-          onCancel={handleCancel}
-          isLoading={loading}
-        />
+    <div className="flex flex-col gap-6 max-w-4xl mx-auto">
+      <div>
+        <h1 className="text-3xl font-extrabold text-white tracking-tight">
+          Create New Quiz
+        </h1>
+        <p className="text-gray-400 text-sm mt-1">
+          Build customized questions, options, select correct answers, and set timers.
+        </p>
       </div>
-    </DashboardLayout>
+      
+      <QuizEditor
+        onSave={handleSave}
+        onCancel={handleCancel}
+        isLoading={loading}
+      />
+    </div>
   );
 }

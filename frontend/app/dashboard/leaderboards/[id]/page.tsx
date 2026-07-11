@@ -22,6 +22,14 @@ export default function HostLeaderboardPage({ params }: PageProps) {
 
   const { session, loading, error } = useAppSelector((state) => state.leaderboard);
   const [quizDetails, setQuizDetails] = useState<Quiz | null>(null);
+  const [joinUrl, setJoinUrl] = useState('');
+
+  // Dynamically resolve full join url on client side
+  useEffect(() => {
+    if (typeof window !== 'undefined' && sessionCode) {
+      setJoinUrl(`${window.location.origin}/quiz/${sessionCode}`);
+    }
+  }, [sessionCode]);
 
   // Load session on mount
   useEffect(() => {
@@ -69,30 +77,38 @@ export default function HostLeaderboardPage({ params }: PageProps) {
     }
   };
 
+  const handleAbandonQuiz = async () => {
+    if (confirm('⚠️ WARNING: Are you sure you want to destroy this live session? All players will be disconnected and no analytics will be saved.')) {
+      try {
+        await MockAPI.abandonSession(sessionCode);
+        alert('Session successfully destroyed.');
+        router.push('/dashboard/quizzes');
+      } catch (err: any) {
+        alert(err.message || 'Failed to destroy session');
+      }
+    }
+  };
+
   if (loading && !session) {
     return (
-      <DashboardLayout>
-        <div className="flex justify-center items-center py-32">
-          <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
-        </div>
-      </DashboardLayout>
+      <div className="flex justify-center items-center py-32">
+        <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+      </div>
     );
   }
 
   if (error || !session) {
     return (
-      <DashboardLayout>
-        <div className="glass-panel text-center py-20 rounded-2xl border border-gray-800">
-          <span className="text-4xl block mb-4">⚠️</span>
-          <h2 className="text-xl font-bold text-white mb-2">Session Error</h2>
-          <p className="text-gray-400 text-sm mb-6">
-            {error || 'The live session you requested could not be found.'}
-          </p>
-          <Button variant="outline" size="sm" onClick={() => router.push('/dashboard')}>
-            Back to Dashboard
-          </Button>
-        </div>
-      </DashboardLayout>
+      <div className="glass-panel text-center py-20 rounded-2xl border border-gray-800">
+        <span className="text-4xl block mb-4">⚠️</span>
+        <h2 className="text-xl font-bold text-white mb-2">Session Error</h2>
+        <p className="text-gray-400 text-sm mb-6">
+          {error || 'The live session you requested could not be found.'}
+        </p>
+        <Button variant="outline" size="sm" onClick={() => router.push('/dashboard')}>
+          Back to Dashboard
+        </Button>
+      </div>
     );
   }
 
@@ -103,8 +119,7 @@ export default function HostLeaderboardPage({ params }: PageProps) {
   const isCompleted = session.status === 'completed';
 
   return (
-    <DashboardLayout>
-      <div className="flex flex-col gap-6 max-w-5xl mx-auto">
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto">
         {/* Header controller banner */}
         <div className="glass-panel p-6 rounded-3xl border border-violet-500/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex-1 min-w-0">
@@ -138,6 +153,16 @@ export default function HostLeaderboardPage({ params }: PageProps) {
           
           {/* Controls */}
           <div className="flex gap-2 shrink-0">
+            {!isCompleted && (
+              <Button
+                variant="outline"
+                onClick={handleAbandonQuiz}
+                className="hover:bg-red-950/20 hover:text-red-400 hover:border-red-900/30 text-gray-400 font-bold"
+              >
+                🚫 Cancel Session
+              </Button>
+            )}
+
             {isLobby && (
               <Button
                 variant="secondary"
@@ -177,6 +202,38 @@ export default function HostLeaderboardPage({ params }: PageProps) {
         {/* Lobby/Leaderboard rendering */}
         {isLobby ? (
           <div className="flex flex-col gap-6">
+            {/* Direct Join Link UI */}
+            {joinUrl && (
+              <div className="glass-panel p-6 rounded-3xl border border-violet-500/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-scale-in">
+                <div className="flex-1 min-w-0 w-full">
+                  <span className="text-[10px] text-gray-500 font-extrabold tracking-widest uppercase block mb-1">Direct Game Link</span>
+                  <input
+                    type="text"
+                    readOnly
+                    value={joinUrl}
+                    className="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-2.5 text-sm text-violet-300 font-mono focus:outline-none"
+                    id="joinUrlInput"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const copyText = document.getElementById("joinUrlInput") as HTMLInputElement;
+                    if (copyText) {
+                      copyText.select();
+                      copyText.setSelectionRange(0, 99999);
+                      navigator.clipboard.writeText(copyText.value);
+                      alert("Direct join link copied to clipboard!");
+                    }
+                  }}
+                  className="w-full md:w-auto shrink-0 py-2.5 px-5 font-bold"
+                >
+                  Copy Link 📋
+                </Button>
+              </div>
+            )}
+
             <div className="flex justify-between items-center px-1">
               <h3 className="text-xl font-bold text-white">
                 Players Lobby ({playersList.length})
@@ -210,6 +267,5 @@ export default function HostLeaderboardPage({ params }: PageProps) {
           />
         )}
       </div>
-    </DashboardLayout>
   );
 }

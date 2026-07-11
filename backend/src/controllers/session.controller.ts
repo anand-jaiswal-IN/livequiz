@@ -360,5 +360,52 @@ export const sessionController = {
       console.error("EndSession Error:", error);
       return res.status(500).json({ error: "Internal server error." });
     }
+  },
+
+  // Host controller: abandon/destroy session without saving analytics
+  async abandonSession(req: AuthenticatedRequest, res: Response) {
+    try {
+      const creatorId = req.user?.id;
+      const { code } = req.params as any;
+
+      if (!creatorId) {
+        return res.status(401).json({ error: "Unauthorized access." });
+      }
+
+      const session = await getRedisSession(code);
+      if (!session) {
+        return res.status(404).json({ error: "Session not found." });
+      }
+
+      if (session.creatorId !== creatorId) {
+        return res.status(403).json({ error: "Access denied. You do not own this session." });
+      }
+
+      // Reset the quiz document in MongoDB
+      await Quiz.updateOne(
+        { joinCode: code } as any,
+        { $set: { isPublished: false, joinCode: null } } as any
+      );
+
+      // Delete the Redis keys associated with this active session immediately
+      await redisClient.del(`session:${code}`);
+      await redisClient.del(`players:${code}`);
+      await redisClient.del(`leaderboard:${code}`);
+
+      // Emit session abandoned event via WebSocket
+      const io = req.app.get("io");
+      if (io) {
+        io.to(`session:${code}`).emit("session_event", {
+          type: "SESSION_ENDED",
+          code,
+          abandoned: true,
+        });
+      }
+
+      return res.json({ success: true, message: "Session successfully destroyed." });
+    } catch (error: any) {
+      console.error("AbandonSession Error:", error);
+      return res.status(500).json({ error: "Internal server error." });
+    }
   }
 };

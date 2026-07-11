@@ -12,5 +12,6 @@ router.post("/:code/submit", sessionController.submitAnswer);
 // Host routes (protected)
 router.post("/:code/next", authMiddleware as any, sessionController.nextQuestion);
 router.post("/:code/end", authMiddleware as any, sessionController.endSession);
+router.post("/:code/abandon", authMiddleware as any, sessionController.abandonSession);
 
 export default router;

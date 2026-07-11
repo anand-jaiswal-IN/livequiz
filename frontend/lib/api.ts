@@ -446,6 +446,19 @@ export const MockAPI = {
     return data;
   },
 
+  async abandonSession(code: string): Promise<any> {
+    const accessToken = localStorage.getItem('ll_access_token');
+    const res = await fetch(`${API_BASE_URL}/sessions/${code}/abandon`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to destroy session.');
+    return data;
+  },
+
   // --- ANALYTICS DATABASE ---
   
   async getQuizAnalytics(quizId: string): Promise<any[]> {
