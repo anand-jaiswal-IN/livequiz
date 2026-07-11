@@ -148,7 +148,8 @@ const DB = {
 // Initialize Socket.io Client for real-time WebSocket updates
 let socket: any = null;
 if (typeof window !== 'undefined') {
-  socket = io('http://localhost:8000', {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+  socket = io(backendUrl, {
     transports: ['websocket'],
     autoConnect: true,
   });
@@ -174,7 +175,7 @@ function broadcastUpdate(type: string, data: any) {
   // No-op: all sync events are now routed via backend Socket.io rooms
 }
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000') + '/api/v1';
 
 export const MockAPI = {
   // --- AUTHENTICATION API ---

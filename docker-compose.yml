@@ -1,0 +1,77 @@
+services:
+  # 1. MongoDB Database
+  mongodb:
+    image: mongo:8.0-noble
+    container_name: livequiz-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=livequizuser
+      - MONGO_INITDB_ROOT_PASSWORD=livequiz123
+      - MONGO_INITDB_DATABASE=livequiz
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - livequiz-network
+    restart: unless-stopped
+
+  # 2. Redis Cache
+  redis:
+    image: redis:7.4-alpine
+    container_name: livequiz-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - livequiz-network
+    restart: unless-stopped
+
+  # 3. Backend Express API Server
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: livequiz-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - MONGO_URI=mongodb://livequizuser:livequiz123@mongodb:27017/livequiz?authSource=admin
+      - REDIS_URI=redis://redis:6379
+      - FRONTEND_URL=http://localhost:3000
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - livequiz-network
+    restart: unless-stopped
+
+  # 4. Frontend Next.js Web Client
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+    container_name: livequiz-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - livequiz-network
+    restart: unless-stopped
+
+volumes:
+  mongodb-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  livequiz-network:
+    driver: bridge
