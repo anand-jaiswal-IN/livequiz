@@ -1,13 +1,14 @@
+import "dotenv/config";
 import app from "./app.js";
-import dotenv from "dotenv";
 import redisClient from "./config/redis.js";
 import connectDB, {mongooseConnection} from "./config/db.js";
-import { startAnalyticsWorker } from "./workers/analytics.worker.js";
+import { startAnalyticsWorker, stopAnalyticsWorker } from "./workers/analytics.worker.js";
+import { startMailWorker, stopMailWorker } from "./workers/mail.worker.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
 
-dotenv.config();
+
 
 const PORT = process.env.PORT || 3000;
 
@@ -21,8 +22,9 @@ async function bootstrap() {
     await redisClient.connect();
     console.log("Connected to Redis");
     
-    // Start background analytics queue worker
+    // Start background analytics and mail queue workers
     startAnalyticsWorker();
+    startMailWorker();
 
     const httpServer = createServer(app);
     const io = new Server(httpServer, {
@@ -64,6 +66,8 @@ function gracefulShutdown(signal: string) {
 
   server.close(async () => {
     try {
+      stopAnalyticsWorker();
+      stopMailWorker();
       await redisClient.quit();
       await mongooseConnection?.disconnect();
       process.exit(0);

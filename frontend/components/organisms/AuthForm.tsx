@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loginUser, registerUser, clearAuthError } from '@/store/authSlice';
+import { loginUser, registerUserWithOtp, clearAuthError } from '@/store/authSlice';
 import Button from '../atoms/Button';
 import Input from '../atoms/Input';
 import FormField from '../molecules/FormField';
 import Link from 'next/link';
+import { MockAPI } from '@/lib/api';
 
 interface AuthFormProps {
   type: 'login' | 'signup';
@@ -22,11 +23,20 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
-  // Clear slice errors on mount/unmount
+  // Clear slice and local errors on mount/unmount/type change
   useEffect(() => {
     dispatch(clearAuthError());
+    setLocalError(null);
+    setSuccessMessage(null);
+    setOtpSent(false);
+    setOtp('');
     return () => {
       dispatch(clearAuthError());
     };
@@ -42,58 +52,97 @@ export default function AuthForm({ type }: AuthFormProps) {
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
 
-    if (type === 'signup' && !username.trim()) {
-      errors.username = 'Username is required';
-    }
-    
-    if (!email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = 'Please enter a valid email address';
-    }
+    if (!otpSent) {
+      if (type === 'signup' && !username.trim()) {
+        errors.username = 'Username is required';
+      }
+      
+      if (!email.trim()) {
+        errors.email = 'Email is required';
+      } else if (!/\S+@\S+\.\S+/.test(email)) {
+        errors.email = 'Please enter a valid email address';
+      }
 
-    if (!password) {
-      errors.password = 'Password is required';
-    } else if (password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
+      if (!password) {
+        errors.password = 'Password is required';
+      } else if (password.length < 6) {
+        errors.password = 'Password must be at least 6 characters';
+      }
+    } else {
+      if (!otp.trim()) {
+        errors.otp = 'OTP is required';
+      } else if (otp.trim().length !== 6 || !/^\d+$/.test(otp)) {
+        errors.otp = 'OTP must be a 6-digit number';
+      }
     }
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
+  const handleSendOtp = async () => {
+    if (!validateForm()) return;
+    setOtpLoading(true);
+    setLocalError(null);
+    setSuccessMessage(null);
+    try {
+      const response = await MockAPI.signupSendOtp(username, email, password);
+      setOtpSent(true);
+      setSuccessMessage(response.message || 'Verification OTP sent to your email.');
+    } catch (err: any) {
+      setLocalError(err.message || 'Failed to send OTP.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    setLocalError(null);
     if (type === 'login') {
       dispatch(loginUser({ email, password }));
     } else {
-      dispatch(registerUser({ username, email, password }));
+      if (!otpSent) {
+        await handleSendOtp();
+      } else {
+        dispatch(registerUserWithOtp({ username, email, password, otp }));
+      }
     }
   };
+
+  const activeError = error || localError;
 
   return (
     <div className="glass-panel w-full max-w-md p-8 rounded-3xl border border-violet-500/10">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-extrabold text-white light:text-slate-800 tracking-tight mb-2">
-          {type === 'login' ? 'Welcome Back' : 'Create Account'}
+          {type === "login" ? "Welcome Back" : "Create Account"}
         </h2>
         <p className="text-gray-400 light:text-slate-500 text-sm">
-          {type === 'login' 
-            ? 'Sign in to manage and launch your quizzes' 
-            : 'Register to start creating live interactive quizzes'}
+          {type === "login"
+            ? "Sign in to manage and launch your quizzes"
+            : otpSent 
+              ? "Verify your email to complete registration"
+              : "Register to start creating live interactive quizzes"}
         </p>
       </div>
 
-      {error && (
+      {activeError && (
         <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium animate-slide-up">
-          ⚠️ {error}
+          ⚠️ {activeError}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium animate-slide-up">
+          ✓ {successMessage}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {type === 'signup' && (
+        {type === "signup" && !otpSent && (
           <FormField label="Username" error={fieldErrors.username} required>
             <Input
               type="text"
@@ -105,49 +154,103 @@ export default function AuthForm({ type }: AuthFormProps) {
           </FormField>
         )}
 
-        <FormField label="Email Address" error={fieldErrors.email} required>
-          <Input
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            fullWidth
-          />
-        </FormField>
+        {(!otpSent || type === 'login') && (
+          <FormField label="Email Address" error={fieldErrors.email} required>
+            <Input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+            />
+          </FormField>
+        )}
 
-        <FormField label="Password" error={fieldErrors.password} required>
-          <Input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            fullWidth
-          />
-        </FormField>
+        {(!otpSent || type === 'login') && (
+          <FormField label="Password" error={fieldErrors.password} required>
+            <Input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+            />
+          </FormField>
+        )}
+
+        {type === "login" && (
+          <div className="flex justify-end text-xs -mt-2">
+            <Link href="/auth/forgot-password" className="text-violet-400 hover:text-violet-300 font-semibold transition-colors">
+              Forgot password?
+            </Link>
+          </div>
+        )}
+
+        {type === "signup" && otpSent && (
+          <FormField label="Verification OTP" error={fieldErrors.otp} required>
+            <Input
+              type="text"
+              placeholder="Enter 6-digit OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              fullWidth
+            />
+          </FormField>
+        )}
+
+        {type === "signup" && otpSent && (
+          <button
+            type="button"
+            onClick={handleSendOtp}
+            disabled={otpLoading}
+            className="text-xs text-left text-violet-400 hover:text-violet-300 font-semibold transition-colors"
+          >
+            {otpLoading ? "Resending..." : "Didn't receive OTP? Resend"}
+          </button>
+        )}
 
         <Button
           type="submit"
-          variant={type === 'login' ? 'primary' : 'secondary'}
-          isLoading={loading}
+          variant={type === "login" ? "primary" : "secondary"}
+          isLoading={loading || otpLoading}
           fullWidth
           className="mt-2 py-3"
         >
-          {type === 'login' ? 'Sign In' : 'Get Started'}
+          {type === "login" ? "Sign In" : otpSent ? "Verify & Register" : "Send Verification OTP"}
         </Button>
       </form>
 
       <div className="text-center mt-6 text-sm text-gray-500 light:text-slate-500 font-medium">
-        {type === 'login' ? (
+        {type === "login" ? (
           <>
-            Don't have an account?{' '}
-            <Link href="/auth/signup" className="text-violet-400 light:text-violet-600 hover:text-violet-300 light:hover:text-violet-800 font-bold transition-colors">
-              Sign up
-            </Link>
+            <div>
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/auth/signup"
+                className="text-violet-400 light:text-violet-600 hover:text-violet-300 light:hover:text-violet-800 font-bold transition-colors"
+              >
+                Sign up
+              </Link>
+            </div>
+            <div className="mt-3 text-xs">
+              Forgot{" "}
+              <Link href="/auth/forgot-username" className="text-violet-400 hover:text-violet-300 font-bold transition-colors">
+                username
+              </Link>{" "}
+              or{" "}
+              <Link href="/auth/forgot-email" className="text-violet-400 hover:text-violet-300 font-bold transition-colors">
+                email
+              </Link>
+              ?
+            </div>
           </>
         ) : (
           <>
-            Already have an account?{' '}
-            <Link href="/auth/login" className="text-pink-400 light:text-pink-600 hover:text-pink-300 light:hover:text-pink-800 font-bold transition-colors">
+            Already have an account?{" "}
+            <Link
+              href="/auth/login"
+              className="text-pink-400 light:text-pink-600 hover:text-pink-300 light:hover:text-pink-800 font-bold transition-colors"
+            >
               Sign in
             </Link>
           </>

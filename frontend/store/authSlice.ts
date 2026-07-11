@@ -43,6 +43,18 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const registerUserWithOtp = createAsyncThunk(
+  'auth/registerWithOtp',
+  async ({ username, email, password, otp }: any, { rejectWithValue }) => {
+    try {
+      const response = await MockAPI.signupVerify(username, email, password, otp);
+      return response;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Verification failed');
+    }
+  }
+);
+
 export const refreshSessionToken = createAsyncThunk(
   'auth/refreshToken',
   async (refreshToken: string, { rejectWithValue }) => {
@@ -117,6 +129,24 @@ const authSlice = createSlice({
       state.error = null;
     });
     builder.addCase(registerUser.rejected, (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
+
+    // Register with OTP
+    builder.addCase(registerUserWithOtp.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(registerUserWithOtp.fulfilled, (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.user = action.payload.user;
+      state.accessToken = action.payload.tokens.accessToken;
+      state.refreshToken = action.payload.tokens.refreshToken;
+      state.isAuthenticated = true;
+      state.error = null;
+    });
+    builder.addCase(registerUserWithOtp.rejected, (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = action.payload;
     });

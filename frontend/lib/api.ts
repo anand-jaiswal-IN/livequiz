@@ -269,6 +269,89 @@ export const MockAPI = {
     };
   },
 
+  async signupSendOtp(username: string, email: string, password: string): Promise<{ message: string }> {
+    const res = await fetch(`${API_BASE_URL}/auth/signup/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to send verification OTP.');
+    }
+    return data;
+  },
+
+  async signupVerify(username: string, email: string, password: string, otp: string): Promise<{ user: Omit<User, 'passwordHash'>; tokens: { accessToken: string; refreshToken: string } }> {
+    const res = await fetch(`${API_BASE_URL}/auth/signup/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password, otp }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Verification failed.');
+    }
+    localStorage.setItem('ll_access_token', data.tokens.accessToken);
+    localStorage.setItem('ll_refresh_token', data.tokens.refreshToken);
+    setCookie('ll_access_token', data.tokens.accessToken, 15 * 60);
+    setCookie('ll_refresh_token', data.tokens.refreshToken, 7 * 24 * 3600);
+    return data;
+  },
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to request password reset.');
+    }
+    return data;
+  },
+
+  async resetPassword(email: string, otp: string, newPassword: string): Promise<{ message: string }> {
+    const res = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp, newPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to reset password.');
+    }
+    return data;
+  },
+
+  async forgotEmail(username: string): Promise<{ email: string }> {
+    const res = await fetch(`${API_BASE_URL}/auth/forgot-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to recover email.');
+    }
+    return data;
+  },
+
+  async forgotUsername(email: string): Promise<{ username: string }> {
+    const res = await fetch(`${API_BASE_URL}/auth/forgot-username`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to recover username.');
+    }
+    return data;
+  },
+
+
 
   // --- QUIZ MANAGEMENT API ---
 
