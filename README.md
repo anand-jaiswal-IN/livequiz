@@ -30,6 +30,15 @@ LiveQuiz is a gamified live quiz conduction platform designed for hosts and play
 
 ---
 
+## Screenshots
+
+![Screenshot 1](./screenshots/1.png)
+![Screenshot 2](./screenshots/2.png)
+![Screenshot 3](./screenshots/3.png)
+![Screenshot 4](./screenshots/4.png)
+![Screenshot 5](./screenshots/5.png)
+
+
 ## ⚙️ Environment Configurations
 
 Create a `.env` file in the root of the backend and frontend folders using the templates provided:
