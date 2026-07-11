@@ -77,16 +77,6 @@ function DashboardContent({ children }: DashboardLayoutProps) {
         </svg>
       ),
     },
-    // {
-    //   id: 'question-sets',
-    //   label: 'Question Sets',
-    //   route: '/dashboard/question-sets',
-    //   icon: (
-    //     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-    //     </svg>
-    //   ),
-    // },
     {
       id: 'sessions',
       label: 'Live Sessions',
@@ -175,10 +165,10 @@ function DashboardContent({ children }: DashboardLayoutProps) {
             {!isCollapsed && (
               <button 
                 onClick={handleLogout}
-                className="text-gray-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-950/10 transition-colors shrink-0"
+                className="text-gray-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-950/10 transition-colors shrink-0 cursor-pointer"
                 title="Logout Account"
               >
-                🚪
+                Logout
               </button>
             )}
           </div>
