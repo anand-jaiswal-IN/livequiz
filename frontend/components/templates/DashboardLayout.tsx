@@ -4,6 +4,7 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { initializeAuth, logoutUser } from '@/store/authSlice';
+import ThemeToggler from '../atoms/ThemeToggler';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -17,19 +18,22 @@ function DashboardContent({ children }: DashboardLayoutProps) {
 
   // Sidebar collapsible state
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Initialize auth from localStorage on mount
   useEffect(() => {
     dispatch(initializeAuth());
+    setMounted(true);
   }, [dispatch]);
 
   // Protect dashboard routes
   useEffect(() => {
+    if (!mounted) return;
     const token = localStorage.getItem('ll_access_token');
     if (!token && !loading && !isAuthenticated) {
       router.push('/auth/login');
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading, router, mounted]);
 
   // Determine active view from pathname instead of query params
   const getActiveView = () => {
@@ -49,7 +53,7 @@ function DashboardContent({ children }: DashboardLayoutProps) {
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('ll_access_token') : null;
   
-  if (!isAuthenticated && !token) {
+  if (!mounted || (!isAuthenticated && !token)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0B0F19]">
         <div className="flex flex-col items-center gap-4">
@@ -100,26 +104,26 @@ function DashboardContent({ children }: DashboardLayoutProps) {
   ];
 
   return (
-    <div className="flex h-screen bg-[#0B0F19] text-gray-200 overflow-hidden">
+    <div className="flex h-screen bg-background-primary text-foreground overflow-hidden">
       {/* LEFT SIDEBAR */}
       <aside 
-        className={`flex flex-col bg-gray-950/80 border-r border-violet-500/10 backdrop-blur-xl h-full transition-all duration-300 ${
+        className={`flex flex-col bg-gray-950/80 light:bg-slate-50/95 border-r border-violet-500/10 light:border-slate-200 backdrop-blur-xl h-full transition-all duration-300 ${
           isCollapsed ? 'w-20' : 'w-64'
         }`}
       >
         {/* Sidebar Header / Logo */}
-        <div className="flex items-center justify-between px-6 py-6 border-b border-gray-900/60">
+        <div className="flex items-center justify-between px-6 py-6 border-b border-gray-900/60 light:border-slate-200">
           <div className="flex items-center gap-3 overflow-hidden">
             <span className="text-2xl shrink-0">⚡</span>
             {!isCollapsed && (
-              <span className="text-lg font-black text-white tracking-wider uppercase animate-fade-in">
+              <span className="text-lg font-black text-white light:text-slate-800 tracking-wider uppercase animate-fade-in">
                 LiveQuiz
               </span>
             )}
           </div>
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="text-gray-500 hover:text-violet-400 p-1.5 rounded-lg hover:bg-gray-900/40 transition-colors"
+            className="text-gray-500 light:text-slate-400 hover:text-violet-400 p-1.5 rounded-lg hover:bg-gray-900/40 light:hover:bg-slate-200 transition-colors"
           >
             {isCollapsed ? '➡️' : '⬅️'}
           </button>
@@ -133,14 +137,14 @@ function DashboardContent({ children }: DashboardLayoutProps) {
               <button
                 key={item.id}
                 onClick={() => router.push(item.route)}
-                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 group group-hover:bg-gray-900/40 ${
+                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 group group-hover:bg-gray-900/40 light:group-hover:bg-slate-200/50 ${
                   isActive 
                     ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/15' 
-                    : 'text-gray-400 hover:text-white hover:bg-gray-900/40'
+                    : 'text-gray-400 light:text-slate-500 hover:text-white light:hover:text-slate-800 hover:bg-gray-900/40 light:hover:bg-slate-200/50'
                 }`}
               >
                 <div className={`shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-                  isActive ? 'text-white' : 'text-gray-400 group-hover:text-violet-400'
+                  isActive ? 'text-white' : 'text-gray-400 light:text-slate-400 group-hover:text-violet-400 light:group-hover:text-violet-600'
                 }`}>
                   {item.icon}
                 </div>
@@ -149,23 +153,28 @@ function DashboardContent({ children }: DashboardLayoutProps) {
             );
           })}
         </nav>
+        
+        {/* Theme Toggler Option */}
+        <div className="p-4 border-t border-gray-900/60 light:border-slate-200 flex flex-col justify-center">
+          <ThemeToggler showLabel={!isCollapsed} />
+        </div>
 
         {/* Sidebar Footer / User Profile Card */}
-        <div className="p-4 border-t border-gray-900/60 bg-gray-950/40">
+        <div className="p-4 border-t border-gray-900/60 light:border-slate-200 bg-gray-950/40 light:bg-slate-100/50">
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center font-black text-white text-base shrink-0">
               {user?.username?.substring(0, 2).toUpperCase() || 'U'}
             </div>
             {!isCollapsed && (
               <div className="flex-1 min-w-0 animate-fade-in">
-                <h4 className="text-sm font-bold text-white truncate">{user?.username}</h4>
+                <h4 className="text-sm font-bold text-white light:text-slate-800 truncate">{user?.username}</h4>
                 <p className="text-[10px] text-gray-500 truncate font-semibold uppercase tracking-wider">{user?.email}</p>
               </div>
             )}
             {!isCollapsed && (
               <button 
                 onClick={handleLogout}
-                className="text-gray-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-950/10 transition-colors shrink-0 cursor-pointer"
+                className="text-gray-500 light:text-slate-400 hover:text-red-400 light:hover:text-red-600 p-1.5 rounded-lg hover:bg-red-950/10 light:hover:bg-red-50 transition-colors shrink-0 cursor-pointer"
                 title="Logout Account"
               >
                 Logout
@@ -175,7 +184,7 @@ function DashboardContent({ children }: DashboardLayoutProps) {
           {isCollapsed && (
             <button 
               onClick={handleLogout}
-              className="w-full mt-3 text-center text-gray-500 hover:text-red-400 py-2 rounded-lg hover:bg-red-950/10 transition-colors block text-xs"
+              className="w-full mt-3 text-center text-gray-500 light:text-slate-400 hover:text-red-400 light:hover:text-red-600 py-2 rounded-lg hover:bg-red-950/10 light:hover:bg-red-50 transition-colors block text-xs"
               title="Logout Account"
             >
               Logout

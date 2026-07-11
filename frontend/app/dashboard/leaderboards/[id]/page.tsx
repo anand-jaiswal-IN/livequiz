@@ -128,24 +128,24 @@ export default function HostLeaderboardPage({ params }: PageProps) {
                 {session.status.toUpperCase()}
               </Badge>
               {isActive && quizDetails && (
-                <span className="text-xs text-gray-400 font-bold">
+                <span className="text-xs text-gray-400 light:text-slate-500 font-bold">
                   Question {session.currentQuestionIndex + 1} of {totalQuestions}
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight truncate">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white light:text-slate-800 tracking-tight truncate">
               {session.quizTitle}
             </h1>
-            <p className="text-xs text-gray-500 font-medium mt-1">
+            <p className="text-xs text-gray-500 light:text-slate-400 font-medium mt-1">
               Share the Join PIN with your audience to participate.
             </p>
           </div>
 
           {/* Large Join pin display */}
-          <div className="flex items-center gap-4 bg-gray-950/40 border border-gray-800/80 px-6 py-3 rounded-2xl shrink-0">
+          <div className="flex items-center gap-4 bg-gray-950/40 light:bg-slate-100/50 border border-gray-800/80 light:border-slate-200 px-6 py-3 rounded-2xl shrink-0">
             <div className="flex flex-col">
-              <span className="text-[10px] text-gray-500 font-extrabold tracking-widest uppercase">Join Code</span>
-              <span className="text-3xl font-black tracking-widest text-violet-400 font-mono">
+              <span className="text-[10px] text-gray-500 light:text-slate-450 font-extrabold tracking-widest uppercase">Join Code</span>
+              <span className="text-3xl font-black tracking-widest text-violet-400 light:text-violet-600 font-mono">
                 {session.code}
               </span>
             </div>
@@ -157,7 +157,7 @@ export default function HostLeaderboardPage({ params }: PageProps) {
               <Button
                 variant="outline"
                 onClick={handleAbandonQuiz}
-                className="hover:bg-red-950/20 hover:text-red-400 hover:border-red-900/30 text-gray-400 font-bold"
+                className="hover:bg-red-950/20 light:hover:bg-red-50 hover:text-red-400 light:hover:text-red-600 hover:border-red-900/30 text-gray-400 light:text-slate-500 font-bold"
               >
                 🚫 Cancel Session
               </Button>
@@ -204,14 +204,14 @@ export default function HostLeaderboardPage({ params }: PageProps) {
           <div className="flex flex-col gap-6">
             {/* Direct Join Link UI */}
             {joinUrl && (
-              <div className="glass-panel p-6 rounded-3xl border border-violet-500/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-scale-in">
+              <div className="glass-panel p-6 rounded-3xl border border-violet-500/10 light:border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-scale-in">
                 <div className="flex-1 min-w-0 w-full">
-                  <span className="text-[10px] text-gray-500 font-extrabold tracking-widest uppercase block mb-1">Direct Game Link</span>
+                  <span className="text-[10px] text-gray-500 light:text-slate-450 font-extrabold tracking-widest uppercase block mb-1">Direct Game Link</span>
                   <input
                     type="text"
                     readOnly
                     value={joinUrl}
-                    className="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-2.5 text-sm text-violet-300 font-mono focus:outline-none"
+                    className="w-full bg-gray-950 light:bg-slate-100 border border-gray-900 light:border-slate-200 rounded-xl px-4 py-2.5 text-sm text-violet-300 light:text-violet-600 font-mono focus:outline-none"
                     id="joinUrlInput"
                   />
                 </div>
@@ -235,16 +235,16 @@ export default function HostLeaderboardPage({ params }: PageProps) {
             )}
 
             <div className="flex justify-between items-center px-1">
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-xl font-bold text-white light:text-slate-800">
                 Players Lobby ({playersList.length})
               </h3>
             </div>
             {playersList.length === 0 ? (
-              <div className="glass-panel text-center py-24 rounded-3xl border border-gray-800/80">
+              <div className="glass-panel text-center py-24 rounded-3xl border border-gray-800/80 light:border-slate-200">
                 <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <h4 className="text-lg font-bold text-white mb-1">Waiting for players to join...</h4>
-                <p className="text-gray-400 text-sm max-w-sm mx-auto">
-                  Go to <span className="text-violet-300 font-mono font-bold">homepage</span> and enter PIN <span className="text-violet-300 font-mono font-bold">{sessionCode}</span> in another tab to join.
+                <h4 className="text-lg font-bold text-white light:text-slate-800 mb-1">Waiting for players to join...</h4>
+                <p className="text-gray-400 light:text-slate-500 text-sm max-w-sm mx-auto">
+                  Go to <span className="text-violet-300 light:text-violet-600 font-mono font-bold">homepage</span> and enter PIN <span className="text-violet-300 light:text-violet-600 font-mono font-bold">{sessionCode}</span> in another tab to join.
                 </p>
               </div>
             ) : (
@@ -252,7 +252,7 @@ export default function HostLeaderboardPage({ params }: PageProps) {
                 {playersList.map((player) => (
                   <div
                     key={player.id}
-                    className="glass-panel border border-violet-500/10 px-4 py-3 rounded-xl text-center font-bold text-sm text-violet-300 animate-scale-in"
+                    className="glass-panel border border-violet-500/10 light:border-violet-500/25 px-4 py-3 rounded-xl text-center font-bold text-sm text-violet-300 light:text-violet-600 bg-gray-950/20 light:bg-slate-50 animate-scale-in"
                   >
                     👤 {player.nickname}
                   </div>

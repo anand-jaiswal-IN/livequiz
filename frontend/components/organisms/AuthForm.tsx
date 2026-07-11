@@ -76,10 +76,10 @@ export default function AuthForm({ type }: AuthFormProps) {
   return (
     <div className="glass-panel w-full max-w-md p-8 rounded-3xl border border-violet-500/10">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">
+        <h2 className="text-3xl font-extrabold text-white light:text-slate-800 tracking-tight mb-2">
           {type === 'login' ? 'Welcome Back' : 'Create Account'}
         </h2>
-        <p className="text-gray-400 text-sm">
+        <p className="text-gray-400 light:text-slate-500 text-sm">
           {type === 'login' 
             ? 'Sign in to manage and launch your quizzes' 
             : 'Register to start creating live interactive quizzes'}
@@ -136,18 +136,18 @@ export default function AuthForm({ type }: AuthFormProps) {
         </Button>
       </form>
 
-      <div className="text-center mt-6 text-sm text-gray-500 font-medium">
+      <div className="text-center mt-6 text-sm text-gray-500 light:text-slate-500 font-medium">
         {type === 'login' ? (
           <>
             Don't have an account?{' '}
-            <Link href="/auth/signup" className="text-violet-400 hover:text-violet-300 font-bold transition-colors">
+            <Link href="/auth/signup" className="text-violet-400 light:text-violet-600 hover:text-violet-300 light:hover:text-violet-800 font-bold transition-colors">
               Sign up
             </Link>
           </>
         ) : (
           <>
             Already have an account?{' '}
-            <Link href="/auth/login" className="text-pink-400 hover:text-pink-300 font-bold transition-colors">
+            <Link href="/auth/login" className="text-pink-400 light:text-pink-600 hover:text-pink-300 light:hover:text-pink-800 font-bold transition-colors">
               Sign in
             </Link>
           </>

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant light (&:where(.light, .light *));
+
 :root {
   --background-primary: #0A0E1A;
   --background-secondary: #131A2E;
@@ -15,6 +17,23 @@
   --card-bg: rgba(19, 26, 46, 0.6);
   --glass-bg: rgba(10, 14, 26, 0.7);
   --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+:root.light {
+  --background-primary: #F8FAFC;
+  --background-secondary: #F1F5F9;
+  --background-hovered: #E2E8F0;
+  --foreground: #0F172A;
+  
+  --primary: #6D28D9;
+  --primary-hover: #5B21B6;
+  --secondary: #DB2777;
+  --secondary-hover: #BE185D;
+  --accent: #059669;
+  --card-border: rgba(109, 40, 217, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(109, 40, 217, 0.08);
 }
 
 @theme inline {
@@ -37,6 +56,11 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+:root.light body {
+  background: radial-gradient(circle at top left, #ede9fe 0%, var(--background-primary) 50%, #f1f5f9 100%);
 }
 
 /* Custom Scrollbar */

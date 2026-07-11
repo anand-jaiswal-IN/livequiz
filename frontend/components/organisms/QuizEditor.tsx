@@ -24,8 +24,14 @@ export default function QuizEditor({
   const [description, setDescription] = useState(initialQuiz?.description || '');
   
   // Questions array
-  const [questions, setQuestions] = useState<Question[]>(
-    initialQuiz?.questions || [
+  const [questions, setQuestions] = useState<Question[]>(() => {
+    if (initialQuiz?.questions) {
+      return initialQuiz.questions.map((q) => ({
+        ...q,
+        id: q.id || (q as any)._id || Math.random().toString(36).substring(2, 9),
+      }));
+    }
+    return [
       {
         id: Math.random().toString(36).substring(2, 9),
         text: '',
@@ -34,8 +40,8 @@ export default function QuizEditor({
         timeLimit: 20,
         pointsWeight: 1,
       },
-    ]
-  );
+    ];
+  });
 
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -131,8 +137,8 @@ export default function QuizEditor({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-8 pb-12 animate-slide-up">
       {/* Quiz details card */}
-      <div className="glass-panel p-6 rounded-2xl border border-violet-500/10 flex flex-col gap-5">
-        <h3 className="text-xl font-bold text-white mb-2">Quiz Information</h3>
+      <div className="glass-panel p-6 rounded-2xl border border-violet-500/10 light:border-slate-200 flex flex-col gap-5">
+        <h3 className="text-xl font-bold text-white light:text-slate-800 mb-2">Quiz Information</h3>
         <FormField label="Quiz Title" required>
           <Input
             type="text"
@@ -148,7 +154,7 @@ export default function QuizEditor({
             placeholder="Enter a brief description explaining what this quiz covers..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-4 py-3 bg-gray-900/60 border border-gray-800 rounded-xl text-white placeholder-gray-500 transition-all outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+            className="w-full px-4 py-3 bg-gray-900/60 light:bg-slate-100 border border-gray-800 light:border-slate-300 rounded-xl text-white light:text-slate-900 placeholder-gray-500 light:placeholder-slate-400 transition-all outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
           />
         </FormField>
       </div>
@@ -156,7 +162,7 @@ export default function QuizEditor({
       {/* Questions list */}
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-center px-1">
-          <h3 className="text-xl font-bold text-white">Questions Set</h3>
+          <h3 className="text-xl font-bold text-white light:text-slate-800">Questions Set</h3>
           <Button
             type="button"
             variant="secondary"
@@ -170,17 +176,17 @@ export default function QuizEditor({
         {questions.map((q, qIdx) => (
           <div
             key={q.id}
-            className="glass-panel p-6 rounded-2xl border border-gray-800/80 relative flex flex-col gap-5 group"
+            className="glass-panel p-6 rounded-2xl border border-gray-800/80 light:border-slate-200 relative flex flex-col gap-5 group"
           >
             {/* Header / Remove question */}
-            <div className="flex justify-between items-center border-b border-gray-800/60 pb-3">
-              <span className="text-sm font-bold text-violet-400">
+            <div className="flex justify-between items-center border-b border-gray-800/60 light:border-slate-200 pb-3">
+              <span className="text-sm font-bold text-violet-400 light:text-violet-600">
                 Question {qIdx + 1}
               </span>
               <button
                 type="button"
                 onClick={() => handleRemoveQuestion(qIdx)}
-                className="text-gray-500 hover:text-red-400 text-xs font-semibold px-2 py-1 rounded bg-gray-900 border border-gray-800 hover:border-red-950 transition-all cursor-pointer"
+                className="text-gray-500 light:text-slate-500 hover:text-red-400 light:hover:text-red-600 text-xs font-semibold px-2 py-1 rounded bg-gray-900 light:bg-slate-100 border border-gray-800 light:border-slate-300 hover:border-red-950 transition-all cursor-pointer"
               >
                 Delete Question
               </button>
@@ -203,7 +209,7 @@ export default function QuizEditor({
                 <select
                   value={q.timeLimit}
                   onChange={(e) => handleTimeLimitChange(qIdx, parseInt(e.target.value))}
-                  className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-white outline-none focus:border-violet-500"
+                  className="w-full px-4 py-3 bg-gray-900 light:bg-slate-100 border border-gray-800 light:border-slate-300 rounded-xl text-white light:text-slate-900 outline-none focus:border-violet-500"
                 >
                   <option value={5}>5 seconds</option>
                   <option value={10}>10 seconds</option>
@@ -217,7 +223,7 @@ export default function QuizEditor({
                 <select
                   value={q.pointsWeight}
                   onChange={(e) => handlePointsWeightChange(qIdx, parseFloat(e.target.value))}
-                  className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-white outline-none focus:border-violet-500"
+                  className="w-full px-4 py-3 bg-gray-900 light:bg-slate-100 border border-gray-800 light:border-slate-300 rounded-xl text-white light:text-slate-900 outline-none focus:border-violet-500"
                 >
                   <option value={1}>1x (Standard)</option>
                   <option value={1.5}>1.5x (Bonus)</option>
@@ -228,7 +234,7 @@ export default function QuizEditor({
 
             {/* Options list */}
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              <label className="text-xs font-bold uppercase tracking-wider text-gray-400 light:text-slate-500">
                 Answer Options (Mark correct radio button)
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -242,21 +248,21 @@ export default function QuizEditor({
                   return (
                     <div
                       key={optIdx}
-                      className="flex items-center gap-3 p-3 bg-gray-900/40 rounded-xl border border-gray-800"
+                      className="flex items-center gap-3 p-3 bg-gray-900/40 light:bg-slate-100 rounded-xl border border-gray-800 light:border-slate-200"
                     >
                       <input
                         type="radio"
                         name={`correct-option-${q.id}`}
                         checked={q.correctOptionIndex === optIdx}
                         onChange={() => handleCorrectOptionChange(qIdx, optIdx)}
-                        className="w-5 h-5 text-violet-600 focus:ring-violet-500 border-gray-800 bg-gray-900 cursor-pointer"
+                        className="w-5 h-5 text-violet-600 focus:ring-violet-500 border-gray-800 light:border-slate-350 bg-gray-900 light:bg-white cursor-pointer"
                       />
                       <input
                         type="text"
                         placeholder={`Option ${String.fromCharCode(65 + optIdx)}`}
                         value={opt}
                         onChange={(e) => handleOptionTextChange(qIdx, optIdx, e.target.value)}
-                        className={`flex-1 bg-transparent text-white border-b ${colors[optIdx]} py-1 px-1 outline-none text-sm`}
+                        className={`flex-1 bg-transparent text-white light:text-slate-900 border-b ${colors[optIdx]} py-1 px-1 outline-none text-sm`}
                       />
                     </div>
                   );
@@ -274,7 +280,7 @@ export default function QuizEditor({
       )}
 
       {/* Editor Controls */}
-      <div className="flex gap-4 sticky bottom-4 z-40 bg-gray-950/80 backdrop-blur border border-gray-800/80 p-4 rounded-2xl shadow-xl">
+      <div className="flex gap-4 sticky bottom-4 z-40 bg-gray-950/80 light:bg-white/95 backdrop-blur border border-gray-800/80 light:border-slate-200 p-4 rounded-2xl shadow-xl">
         <Button
           type="submit"
           variant="primary"

@@ -26,7 +26,7 @@ export default function QuizCard({
     <div className="glass-panel rounded-2xl p-6 flex flex-col justify-between h-full border border-violet-500/10 hover:border-violet-500/30 transition-all duration-300">
       <div>
         <div className="flex justify-between items-start gap-4 mb-3">
-          <h3 className="text-xl font-bold text-white tracking-tight line-clamp-1">
+          <h3 className="text-xl font-bold text-white light:text-slate-800 tracking-tight line-clamp-1">
             {quiz.title}
           </h3>
           <Badge variant={quiz.isPublished ? 'success' : 'warning'}>
@@ -34,11 +34,11 @@ export default function QuizCard({
           </Badge>
         </div>
         
-        <p className="text-gray-400 text-sm mb-6 line-clamp-2 min-h-10">
+        <p className="text-gray-400 light:text-slate-600 text-sm mb-6 line-clamp-2 min-h-10">
           {quiz.description || 'No description provided.'}
         </p>
 
-        <div className="flex gap-4 mb-6 text-xs text-gray-500 font-medium">
+        <div className="flex gap-4 mb-6 text-xs text-gray-500 light:text-slate-500 font-medium">
           <div className="flex items-center gap-1.5">
             <span className="text-violet-400">⚡</span>
             <span>{quiz.questions.length} Questions</span>
@@ -48,7 +48,7 @@ export default function QuizCard({
             <span>Created {formattedDate}</span>
           </div>
           {quiz.joinCode && (
-            <div className="flex items-center gap-1.5 ml-auto text-emerald-400">
+            <div className="flex items-center gap-1.5 ml-auto text-emerald-400 light:text-emerald-600">
               <span>Code:</span>
               <span className="font-mono font-bold tracking-wider">{quiz.joinCode}</span>
             </div>

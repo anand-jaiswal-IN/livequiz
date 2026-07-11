@@ -36,10 +36,10 @@ export default function QuizStatsPage({ params }: PageProps) {
 
   if (!currentQuiz) {
     return (
-      <div className="glass-panel text-center py-20 rounded-2xl border border-gray-800/85">
+      <div className="glass-panel text-center py-20 rounded-2xl border border-gray-800/85 light:border-slate-200">
         <span className="text-4xl block mb-4">⚠️</span>
-        <h2 className="text-xl font-bold text-white mb-2">Quiz not found</h2>
-        <p className="text-gray-400 text-sm mb-6">
+        <h2 className="text-xl font-bold text-white light:text-slate-800 mb-2">Quiz not found</h2>
+        <p className="text-gray-400 light:text-slate-550 text-sm mb-6">
           The quiz you are looking for does not exist or you do not have permission to view it.
         </p>
         <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/quizzes')}>
@@ -52,12 +52,12 @@ export default function QuizStatsPage({ params }: PageProps) {
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto animate-slide-up">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-gray-800/60">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-gray-800/60 light:border-slate-200">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-3xl font-extrabold text-white light:text-slate-800 tracking-tight">
             {currentQuiz.title} - Stats
           </h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-gray-400 light:text-slate-550 text-sm mt-1">
             Performance analytics overview for past runs.
           </p>
         </div>

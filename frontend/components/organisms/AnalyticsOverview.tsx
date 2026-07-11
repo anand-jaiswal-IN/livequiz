@@ -28,10 +28,10 @@ interface AnalyticsOverviewProps {
 export default function AnalyticsOverview({ analyticsData }: AnalyticsOverviewProps) {
   if (!analyticsData || analyticsData.length === 0) {
     return (
-      <div className="glass-panel text-center py-16 rounded-2xl border border-gray-800/80">
+      <div className="glass-panel text-center py-16 rounded-2xl border border-gray-800/80 light:border-slate-200">
         <span className="text-4xl block mb-3 opacity-60">📊</span>
-        <h3 className="text-lg font-bold text-white mb-1">No analytics data available yet</h3>
-        <p className="text-gray-400 text-sm max-w-sm mx-auto">
+        <h3 className="text-lg font-bold text-white light:text-slate-800 mb-1">No analytics data available yet</h3>
+        <p className="text-gray-400 light:text-slate-500 text-sm max-w-sm mx-auto">
           Host a live session, invite players, and complete the quiz to generate analytics.
         </p>
       </div>
@@ -75,7 +75,7 @@ export default function AnalyticsOverview({ analyticsData }: AnalyticsOverviewPr
 
       {/* History List */}
       <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-bold text-white px-1">Session Run History</h3>
+        <h3 className="text-lg font-bold text-white light:text-slate-800 px-1">Session Run History</h3>
         
         <div className="flex flex-col gap-4">
           {analyticsData.map((session, sIdx) => {
@@ -90,29 +90,29 @@ export default function AnalyticsOverview({ analyticsData }: AnalyticsOverviewPr
             return (
               <div
                 key={session.sessionCode}
-                className="glass-panel p-6 rounded-2xl border border-gray-800/80 hover:border-gray-700/80 transition-all flex flex-col gap-5"
+                className="glass-panel p-6 rounded-2xl border border-gray-800/80 light:border-slate-200 hover:border-gray-700/80 light:hover:border-slate-300 transition-all flex flex-col gap-5"
               >
                 {/* Session Header */}
-                <div className="flex flex-wrap justify-between items-center gap-3 border-b border-gray-800/60 pb-3">
+                <div className="flex flex-wrap justify-between items-center gap-3 border-b border-gray-800/60 light:border-slate-200 pb-3">
                   <div className="flex items-center gap-3">
                     <Badge variant="info">Session Code: {session.sessionCode}</Badge>
-                    <span className="text-xs text-gray-500 font-bold">{formattedDate}</span>
+                    <span className="text-xs text-gray-500 light:text-slate-400 font-bold">{formattedDate}</span>
                   </div>
                   <div className="text-right flex items-center gap-6">
                     <div>
-                      <span className="text-xs font-semibold text-gray-400 mr-2">Players:</span>
-                      <span className="text-sm font-bold text-white">{session.totalPlayers}</span>
+                      <span className="text-xs font-semibold text-gray-400 light:text-slate-500 mr-2">Players:</span>
+                      <span className="text-sm font-bold text-white light:text-slate-800">{session.totalPlayers}</span>
                     </div>
                     <div>
-                      <span className="text-xs font-semibold text-gray-400 mr-2">Avg Score:</span>
-                      <span className="text-sm font-bold text-violet-400">{session.averageScore.toLocaleString()}</span>
+                      <span className="text-xs font-semibold text-gray-400 light:text-slate-500 mr-2">Avg Score:</span>
+                      <span className="text-sm font-bold text-violet-400 light:text-violet-600">{session.averageScore.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Questions Breakdown */}
                 <div className="flex flex-col gap-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 light:text-slate-500">
                     Question-by-Question Accuracy Rates
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -122,11 +122,11 @@ export default function AnalyticsOverview({ analyticsData }: AnalyticsOverviewPr
                       return (
                         <div
                           key={qIdx}
-                          className="bg-gray-900/40 p-4 rounded-xl border border-gray-800 flex flex-col gap-2"
+                          className="bg-gray-900/40 light:bg-slate-100/50 p-4 rounded-xl border border-gray-800 light:border-slate-200 flex flex-col gap-2"
                         >
                           <div className="flex justify-between items-start gap-3">
-                            <span className="text-xs font-bold text-gray-500">Q{qIdx + 1}</span>
-                            <span className="text-xs font-bold text-white truncate flex-1">
+                            <span className="text-xs font-bold text-gray-500 light:text-slate-400">Q{qIdx + 1}</span>
+                            <span className="text-xs font-bold text-white light:text-slate-800 truncate flex-1">
                               {qStat.questionText}
                             </span>
                             <Badge variant={progressColor === 'accent' ? 'success' : progressColor === 'primary' ? 'primary' : 'danger'}>
@@ -134,7 +134,7 @@ export default function AnalyticsOverview({ analyticsData }: AnalyticsOverviewPr
                             </Badge>
                           </div>
                           <ProgressBar value={pct} max={100} color={progressColor} />
-                          <span className="text-[10px] text-gray-500 block text-right font-medium">
+                          <span className="text-[10px] text-gray-500 light:text-slate-450 block text-right font-medium">
                             {qStat.totalAnswers} total answers
                           </span>
                         </div>

@@ -24,28 +24,28 @@ export default function QuestionOption({
   const themes = [
     // Option A: Red-Orange
     {
-      base: 'border-red-500/20 bg-red-950/10 hover:bg-red-950/20 hover:border-red-500/40 text-red-100',
+      base: 'border-red-500/20 bg-red-950/10 hover:bg-red-950/20 hover:border-red-500/40 text-red-100 light:text-red-900 light:bg-red-50 light:border-red-200/50 light:hover:bg-red-100/60',
       selected: 'border-red-500 bg-red-600 text-white shadow-lg shadow-red-500/30 ring-4 ring-red-500/10',
       badge: 'bg-red-500 text-white',
       symbol: '▲',
     },
     // Option B: Blue
     {
-      base: 'border-cyan-500/20 bg-cyan-950/10 hover:bg-cyan-950/20 hover:border-cyan-500/40 text-cyan-100',
+      base: 'border-cyan-500/20 bg-cyan-950/10 hover:bg-cyan-950/20 hover:border-cyan-500/40 text-cyan-100 light:text-cyan-900 light:bg-cyan-50 light:border-cyan-200/50 light:hover:bg-cyan-100/60',
       selected: 'border-cyan-500 bg-cyan-600 text-white shadow-lg shadow-cyan-500/30 ring-4 ring-cyan-500/10',
       badge: 'bg-cyan-500 text-white',
       symbol: '◆',
     },
     // Option C: Yellow/Amber
     {
-      base: 'border-amber-500/20 bg-amber-950/10 hover:bg-amber-950/20 hover:border-amber-500/40 text-amber-100',
+      base: 'border-amber-500/20 bg-amber-950/10 hover:bg-amber-950/20 hover:border-amber-500/40 text-amber-100 light:text-amber-900 light:bg-amber-50/50 light:border-amber-200/50 light:hover:bg-amber-100/60',
       selected: 'border-amber-500 bg-amber-600 text-white shadow-lg shadow-amber-500/30 ring-4 ring-amber-500/10',
-      badge: 'bg-amber-500 text-amber-950',
+      badge: 'bg-amber-500 text-amber-950 light:text-white',
       symbol: '●',
     },
     // Option D: Green/Emerald
     {
-      base: 'border-emerald-500/20 bg-emerald-950/10 hover:bg-emerald-950/20 hover:border-emerald-500/40 text-emerald-100',
+      base: 'border-emerald-500/20 bg-emerald-950/10 hover:bg-emerald-950/20 hover:border-emerald-500/40 text-emerald-100 light:text-emerald-900 light:bg-emerald-50 light:border-emerald-200/50 light:hover:bg-emerald-100/60',
       selected: 'border-emerald-500 bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 ring-4 ring-emerald-500/10',
       badge: 'bg-emerald-500 text-white',
       symbol: '■',

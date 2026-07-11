@@ -34,10 +34,10 @@ export default function QuestionSetsPage() {
 
   return (
     <div className="flex flex-col gap-6 animate-slide-up">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-900/60 pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-900/60 light:border-slate-200 pb-5">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Question Sets</h1>
-          <p className="text-gray-400 text-xs mt-1">Design questions, customize options, set time limits, and write correct indices.</p>
+          <h1 className="text-2xl font-black text-white light:text-slate-800 tracking-tight">Question Sets</h1>
+          <p className="text-gray-400 light:text-slate-500 text-xs mt-1">Design questions, customize options, set time limits, and write correct indices.</p>
         </div>
         <Button
           variant="secondary"
@@ -55,8 +55,8 @@ export default function QuestionSetsPage() {
       ) : quizzes.length === 0 ? (
         <div className="glass-panel text-center py-20 rounded-2xl border border-gray-800/80">
           <span className="text-5xl block mb-4">📝</span>
-          <h3 className="text-lg font-bold text-white mb-1">No question sets</h3>
-          <p className="text-gray-400 text-sm max-w-sm mx-auto mb-6">Get started by creating your first question set structure.</p>
+          <h3 className="text-lg font-bold text-white light:text-slate-800 mb-1">No question sets</h3>
+          <p className="text-gray-400 light:text-slate-500 text-sm max-w-sm mx-auto mb-6">Get started by creating your first question set structure.</p>
           <Button variant="outline" size="sm" onClick={handleCreateQuiz}>
             Create Set
           </Button>
@@ -67,14 +67,14 @@ export default function QuestionSetsPage() {
             <div key={quiz.id} className="glass-panel rounded-2xl p-6 border border-violet-500/10 flex flex-col justify-between h-full hover:border-violet-500/30 transition-all duration-300">
               <div>
                 <div className="flex justify-between items-start gap-4 mb-3">
-                  <h3 className="text-lg font-bold text-white line-clamp-1">{quiz.title}</h3>
+                  <h3 className="text-lg font-bold text-white light:text-slate-800 line-clamp-1">{quiz.title}</h3>
                   <Badge variant="secondary">{quiz.questions.length} Qs</Badge>
                 </div>
-                <p className="text-gray-400 text-xs mb-5 line-clamp-2 min-h-8">
+                <p className="text-gray-400 light:text-slate-600 text-xs mb-5 line-clamp-2 min-h-8">
                   {quiz.description || 'No description provided.'}
                 </p>
               </div>
-              <div className="flex gap-2 border-t border-gray-800/60 pt-4 mt-auto">
+              <div className="flex gap-2 border-t border-gray-800/60 light:border-slate-200 pt-4 mt-auto">
                 <Button variant="primary" size="sm" className="flex-1" onClick={() => handleEditQuiz(quiz.id)}>
                   Edit Questions 📝
                 </Button>

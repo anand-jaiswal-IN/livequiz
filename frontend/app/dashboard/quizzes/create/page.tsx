@@ -28,10 +28,10 @@ export default function CreateQuizPage() {
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">
+        <h1 className="text-3xl font-extrabold text-white light:text-slate-800 tracking-tight">
           Create New Quiz
         </h1>
-        <p className="text-gray-400 text-sm mt-1">
+        <p className="text-gray-400 light:text-slate-550 text-sm mt-1">
           Build customized questions, options, select correct answers, and set timers.
         </p>
       </div>

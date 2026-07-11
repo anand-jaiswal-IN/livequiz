@@ -59,10 +59,10 @@ export default function QuizzesPage() {
 
   return (
     <div className="flex flex-col gap-6 animate-slide-up">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-900/60 pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-900/60 light:border-slate-200 pb-5">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Active Live Play</h1>
-          <p className="text-gray-400 text-xs mt-1">Launch quiz sessions, generate PIN codes, and conduct live leaderboards.</p>
+          <h1 className="text-2xl font-black text-white light:text-slate-800 tracking-tight">Active Live Play</h1>
+          <p className="text-gray-400 light:text-slate-500 text-xs mt-1">Launch quiz sessions, generate PIN codes, and conduct live leaderboards.</p>
         </div>
         <Button
           variant="secondary"

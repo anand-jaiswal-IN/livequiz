@@ -26,14 +26,14 @@ export default function ProgressBar({
 
   return (
     <div className={`w-full flex flex-col gap-1 ${className}`}>
-      <div className="w-full h-3 bg-gray-900 border border-gray-800 rounded-full overflow-hidden">
+      <div className="w-full h-3 bg-gray-900 light:bg-slate-200 border border-gray-800 light:border-slate-300 rounded-full overflow-hidden">
         <div
           className={`h-full transition-all duration-300 ease-out ${colors[color]}`}
           style={{ width: `${percentage}%` }}
         />
       </div>
       {showText && (
-        <div className="flex justify-between text-xs text-gray-400 font-semibold px-0.5">
+        <div className="flex justify-between text-xs text-gray-400 light:text-slate-500 font-semibold px-0.5">
           <span>{Math.round(value)}</span>
           <span>{max}</span>
         </div>
