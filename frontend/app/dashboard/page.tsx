@@ -41,15 +41,23 @@ export default function Dashboard() {
   const handleLaunchQuiz = async (id: string) => {
     try {
       const quiz = quizzes.find((q) => q.id === id);
-      if (quiz && quiz.isPublished && quiz.joinCode) {
-        // If already active, go directly to leaderboard
-        router.push(`/dashboard/leaderboards/${quiz.joinCode}`);
-      } else {
-        // Publish and get code
-        const code = await MockAPI.publishQuiz(id);
-        dispatch(fetchQuizzes()); // Reload list to reflect active status
-        router.push(`/dashboard/leaderboards/${code}`);
+      if (quiz && quiz.joinCode) {
+        try {
+          // Verify if the session is still active in Redis
+          const session = await MockAPI.getSession(quiz.joinCode);
+          if (session && session.isActive) {
+            router.push(`/dashboard/leaderboards/${quiz.joinCode}`);
+            return;
+          }
+        } catch (err) {
+          // Session is inactive or purged from Redis, proceed to relaunch
+        }
       }
+      
+      // Relive / Launch a new live session
+      const code = await MockAPI.publishQuiz(id);
+      dispatch(fetchQuizzes()); // Reload list to reflect active status
+      router.push(`/dashboard/leaderboards/${code}`);
     } catch (err: any) {
       alert(err.message || 'Failed to launch quiz');
     }
