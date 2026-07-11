@@ -40,6 +40,13 @@ PORT=8000
 MONGO_URI=mongodb://livequizuser:livequiz123@localhost:27017/livequiz?authSource=admin
 REDIS_URI=redis://localhost:6379
 FRONTEND_URL=http://localhost:3000
+
+# Mail Configuration (Nodemailer SMTP)
+SMTP_HOST=smtp.ethereal.email
+SMTP_PORT=587
+SMTP_USER=your-smtp-username
+SMTP_PASS=your-smtp-password
+SMTP_FROM="Live Quiz" <no-reply@livequiz.com>
 ```
 
 ### Frontend Configuration (`frontend/.env`)

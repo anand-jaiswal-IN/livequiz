@@ -51,6 +51,12 @@ services:
       - MONGO_URI=mongodb://livequizuser:livequiz123@mongodb:27017/livequiz?authSource=admin
       - REDIS_URI=redis://redis:6379
       - FRONTEND_URL=http://localhost:3000
+      - SMTP_HOST=smtp.ethereal.email
+      - SMTP_PORT=587
+      - SMTP_USER=
+      - SMTP_PASS=
+      - SMTP_FROM="Live Quiz" <no-reply@livequiz.com>
+
     depends_on:
       - mongodb
       - redis

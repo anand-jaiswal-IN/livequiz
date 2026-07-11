@@ -15,6 +15,9 @@ graph TD
     Backend <--> |Persistent Documents| Mongo[(MongoDB Database)]
     Backend --> |Event Logging Queue| Worker[Background Analytics Worker]
     Worker --> |Consumes Analytics Records| Mongo
+    Backend --> |Mail Queue| MailWorker[Background Mail Worker]
+    Redis <--> |Queued Mail Jobs| MailWorker
+    MailWorker --> |Sends Emails| SMTP[SMTP Server / Nodemailer]
 ```
 
 ---
@@ -31,11 +34,12 @@ graph TD
 - **Runtime**: Bun (TypeScript engine execution)
 - **Web framework**: Express (REST Endpoints for Auth, Quiz CRUD, and Session Logs)
 - **WebSocket engine**: Socket.io (manages client connections, namespaces, and room subscriptions)
-- **Worker thread**: Background worker executing calculations and syncing player accuracy to MongoDB
+- **Worker threads**: Background workers executing session calculations (synced to MongoDB) and sending queued emails asynchronously via Nodemailer.
 
 ### 3. Cache & In-Memory Store Layer (Redis)
 - **Session state storage**: Stores active player scores, profiles, and leaderboard scores inside Redis Hashes and Sorted Sets (`players:${code}`, `leaderboard:${code}`) for sub-millisecond responses.
 - **WebSocket Rooms routing**: Synchronizes message publishing across API worker instances.
+- **Async Mail Queue**: Custom Redis list queue (`mail:queue`) storing outbound mail jobs for asynchronous delivery.
 
 ### 4. Relational Documents Layer (MongoDB)
 - **Data storage**: Handles durable schemas for Users, Quiz structures, and historic Session Analytics collections.
