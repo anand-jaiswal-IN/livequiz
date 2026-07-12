@@ -1,0 +1,62 @@
+services:
+  # 1. Redis Cache
+  redis:
+    image: redis:7.4-alpine
+    container_name: livequiz-redis-prod
+    command: /bin/sh -c "redis-server --requirepass \$$REDIS_PASSWORD"
+    ports:
+      - "0.0.0.0:6379:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    networks:
+      - livequiz-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+
+  # 2. Backend Express API Server
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: livequiz-backend-prod
+    init: true
+    ports:
+      - "0.0.0.0:8000:8000"
+    environment:
+      - PORT=8000
+      - NODE_ENV=production
+      - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - MONGO_URI=${MONGO_URI}
+      - REDIS_URI=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - SMTP_HOST=${SMTP_HOST:-smtp.ethereal.email}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM:-"Live Quiz" <no-reply@livequiz.com>}
+    depends_on:
+      - redis
+    networks:
+      - livequiz-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  livequiz-network:
+    driver: bridge
