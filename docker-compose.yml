@@ -51,6 +51,9 @@ services:
       - "8000:8000"
     environment:
       - PORT=8000
+      - NODE_ENV=production
+      - ACCESS_TOKEN_SECRET=your-access-token-secret
+      - REFRESH_TOKEN_SECRET=your-refresh-token-secret
       - MONGO_URI=mongodb://livequizuser:livequiz123@mongodb:27017/livequiz?authSource=admin
       - REDIS_URI=redis://redis:6379
       - REDIS_PASSWORD=redis_password
