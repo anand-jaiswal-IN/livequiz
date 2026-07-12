@@ -4,10 +4,12 @@ import mainRouter from "./routes/main.route..js";
 
 const app: Express = express();
 
-app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 
@@ -20,4 +22,3 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/v1", mainRouter);
 
 export default app;
-
