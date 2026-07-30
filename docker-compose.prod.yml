@@ -2,36 +2,6 @@ version: "3.9"
 
 services:
   # ----------------------------------------
-  # Redis
-  # ----------------------------------------
-  redis:
-    image: redis:7.4-alpine
-    container_name: livequiz-redis-prod
-
-    command: >
-      sh -c "redis-server --requirepass $$REDIS_PASSWORD"
-
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-
-    volumes:
-      - redis-data:/data
-
-    networks:
-      - livequiz-network
-
-    restart: unless-stopped
-
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-    expose:
-      - "6379"
-
-  # ----------------------------------------
   # Express Backend
   # ----------------------------------------
   backend:
@@ -55,8 +25,7 @@ services:
 
       MONGO_URI: ${MONGO_URI}
 
-      REDIS_URI: redis://redis:6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_URI: ${REDIS_URL}
 
       FRONTEND_URL: ${FRONTEND_URL}
 
