@@ -17,7 +17,7 @@ interface AuthFormProps {
 export default function AuthForm({ type }: AuthFormProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { loading, error, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { loading, error, loginConflict, isAuthenticated } = useAppSelector((state) => state.auth);
 
   // Form states
   const [username, setUsername] = useState('');
@@ -33,10 +33,6 @@ export default function AuthForm({ type }: AuthFormProps) {
   // Clear slice and local errors on mount/unmount/type change
   useEffect(() => {
     dispatch(clearAuthError());
-    setLocalError(null);
-    setSuccessMessage(null);
-    setOtpSent(false);
-    setOtp('');
     return () => {
       dispatch(clearAuthError());
     };
@@ -112,7 +108,11 @@ export default function AuthForm({ type }: AuthFormProps) {
     }
   };
 
-  const activeError = error || localError;
+  const activeError = loginConflict ? null : error || localError;
+
+  const handleReplaceSession = () => {
+    dispatch(loginUser({ email, password, forceRevokeExistingSession: true }));
+  };
 
   return (
     <div className="w-full max-w-md p-8 rounded-lg border border-hairline bg-canvas shadow-md">
@@ -138,6 +138,35 @@ export default function AuthForm({ type }: AuthFormProps) {
       {successMessage && (
         <div className="mb-6 p-4 rounded-md bg-success/10 border border-success/20 text-success text-xs font-semibold animate-slide-up">
           ✓ {successMessage}
+        </div>
+      )}
+
+      {loginConflict && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="session-conflict-title">
+          <div className="w-full max-w-md rounded-lg border border-hairline bg-canvas p-6 shadow-xl">
+            <h3 id="session-conflict-title" className="text-lg font-bold text-ink">This account is already signed in</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Signing in here will log out the other device. Do you want to continue?
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => dispatch(clearAuthError())}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                onClick={handleReplaceSession}
+                isLoading={loading}
+              >
+                Log out other device
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 

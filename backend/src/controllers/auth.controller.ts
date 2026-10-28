@@ -1,6 +1,7 @@
 import { type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { randomUUID } from "node:crypto";
 import User from "../models/User.model.js";
 import redisClient from "../config/redis.js";
 import { type AuthenticatedRequest } from "../middlewares/auth.middleware.js";
@@ -9,10 +10,15 @@ import { queueMail } from "../workers/mail.worker.js";
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || "default_access_secret_key_847291";
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "default_refresh_secret_key_958102";
+const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
+
+function sessionKey(userId: string) {
+  return `auth:session:${userId}`;
+}
 
 // Helper to sign tokens
-function generateTokens(user: { id: string; username: string; email: string }) {
-  const payload = { userId: user.id, username: user.username, email: user.email };
+function generateTokens(user: { id: string; username: string; email: string }, sessionId: string) {
+  const payload = { userId: user.id, username: user.username, email: user.email, sid: sessionId };
   
   const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, {
     expiresIn: "15m",
@@ -23,6 +29,12 @@ function generateTokens(user: { id: string; username: string; email: string }) {
   });
 
   return { accessToken, refreshToken };
+}
+
+async function createSession(user: { id: string; username: string; email: string }) {
+  const sessionId = randomUUID();
+  await redisClient.setEx(sessionKey(user.id), SESSION_TTL_SECONDS, sessionId);
+  return generateTokens(user, sessionId);
 }
 
 export const authController = {
@@ -61,7 +73,7 @@ export const authController = {
 
       await newUser.save();
 
-      const tokens = generateTokens({
+      const tokens = await createSession({
         id: newUser._id.toString(),
         username: newUser.username,
         email: newUser.email,
@@ -83,7 +95,7 @@ export const authController = {
 
   async login(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
+      const { email, password, forceRevokeExistingSession } = req.body;
 
       if (!email || !password) {
         return res.status(400).json({ error: "Email and password are required." });
@@ -99,8 +111,17 @@ export const authController = {
         return res.status(400).json({ error: "Invalid email or password." });
       }
 
-      const tokens = generateTokens({
-        id: user._id.toString(),
+      const userId = user._id.toString();
+      const activeSessionId = await redisClient.get(sessionKey(userId));
+      if (activeSessionId && !forceRevokeExistingSession) {
+        return res.status(409).json({
+          error: "This account is already signed in on another device.",
+          code: "ACTIVE_SESSION",
+        });
+      }
+
+      const tokens = await createSession({
+        id: userId,
         username: user.username,
         email: user.email,
       });
@@ -136,7 +157,12 @@ export const authController = {
         const payload = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as any;
         
         // Generate new tokens
-        const tokens = generateTokens({
+        const activeSessionId = await redisClient.get(sessionKey(payload.userId));
+        if (!payload.sid || activeSessionId !== payload.sid) {
+          return res.status(401).json({ error: "Session has been revoked. Please login again." });
+        }
+
+        const tokens = await createSession({
           id: payload.userId,
           username: payload.username,
           email: payload.email,
@@ -171,6 +197,12 @@ export const authController = {
             if (secondsRemaining > 0) {
               // Blacklist in Redis
               await redisClient.setEx(`blacklist:${refreshToken}`, secondsRemaining, "true");
+            }
+          }
+          if (payload?.userId && payload?.sid) {
+            const activeSessionId = await redisClient.get(sessionKey(payload.userId));
+            if (activeSessionId === payload.sid) {
+              await redisClient.del(sessionKey(payload.userId));
             }
           }
         } catch (err) {
@@ -347,7 +379,7 @@ export const authController = {
       await newUser.save();
       await redisClient.del(`otp:signup:${email.toLowerCase()}`);
 
-      const tokens = generateTokens({
+      const tokens = await createSession({
         id: newUser._id.toString(),
         username: newUser.username,
         email: newUser.email,

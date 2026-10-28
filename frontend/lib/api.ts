@@ -59,6 +59,14 @@ export interface QuizSession {
   startedAt?: string;
 }
 
+interface MockJwtPayload {
+  userId?: string;
+  username?: string;
+  email?: string;
+  exp?: number;
+  [key: string]: unknown;
+}
+
 // Custom simple Base64 encoder/decoder for browser environments
 function base64UrlEncode(obj: object): string {
   const str = JSON.stringify(obj);
@@ -74,7 +82,7 @@ function base64UrlEncode(obj: object): string {
     .replace(/=+$/, '');
 }
 
-function base64UrlDecode(str: string): any {
+function base64UrlDecode(str: string): MockJwtPayload {
   let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
   while (base64.length % 4) {
     base64 += '=';
@@ -90,7 +98,7 @@ function base64UrlDecode(str: string): any {
 }
 
 // Generate a simple Mock JWT
-function signMockJwt(payload: any, expiresInSeconds: number): string {
+function signMockJwt(payload: MockJwtPayload, expiresInSeconds: number): string {
   const header = { alg: 'HS256', typ: 'JWT' };
   const exp = Math.floor(Date.now() / 1000) + expiresInSeconds;
   const fullPayload = { ...payload, exp };
@@ -103,7 +111,7 @@ function signMockJwt(payload: any, expiresInSeconds: number): string {
 }
 
 // Verify a Mock JWT
-function verifyMockJwt(token: string): any {
+function verifyMockJwt(token: string): MockJwtPayload {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) throw new Error('Invalid token format');
@@ -177,6 +185,21 @@ function broadcastUpdate(type: string, data: any) {
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000') + '/api/v1';
 
+async function authenticatedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const res = await fetch(input, init);
+  if (res.status === 401 && typeof window !== 'undefined') {
+    const data = await res.clone().json().catch(() => null);
+    if (data?.code === 'SESSION_REVOKED') {
+      localStorage.removeItem('ll_access_token');
+      localStorage.removeItem('ll_refresh_token');
+      deleteCookie('ll_access_token');
+      deleteCookie('ll_refresh_token');
+      window.location.assign('/auth/login');
+    }
+  }
+  return res;
+}
+
 export const MockAPI = {
   // --- AUTHENTICATION API ---
   
@@ -200,16 +223,18 @@ export const MockAPI = {
     return data;
   },
 
-  async login(email: string, password: string): Promise<{ user: Omit<User, 'passwordHash'>; tokens: { accessToken: string; refreshToken: string } }> {
+  async login(email: string, password: string, forceRevokeExistingSession = false): Promise<{ user: Omit<User, 'passwordHash'>; tokens: { accessToken: string; refreshToken: string } }> {
     const res = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, forceRevokeExistingSession }),
     });
     
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Login failed.');
+      const error = new Error(data.error || 'Login failed.') as Error & { code?: string };
+      error.code = data.code;
+      throw error;
     }
     
     localStorage.setItem('ll_access_token', data.tokens.accessToken);
@@ -240,7 +265,7 @@ export const MockAPI = {
   },
 
   async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
-    const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    const res = await authenticatedFetch(`${API_BASE_URL}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
@@ -261,7 +286,7 @@ export const MockAPI = {
 
   getCurrentUser(): Omit<User, 'passwordHash'> | null {
     const payload = DB.getCurrentUser();
-    if (!payload) return null;
+    if (!payload || typeof payload.userId !== 'string' || typeof payload.username !== 'string' || typeof payload.email !== 'string') return null;
     return {
       id: payload.userId,
       username: payload.username,
@@ -357,7 +382,7 @@ export const MockAPI = {
 
   async getQuizzes(): Promise<Quiz[]> {
     const accessToken = localStorage.getItem('ll_access_token');
-    const res = await fetch(`${API_BASE_URL}/quizzes`, {
+    const res = await authenticatedFetch(`${API_BASE_URL}/quizzes`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
       },
@@ -373,7 +398,7 @@ export const MockAPI = {
 
   async getQuizById(id: string): Promise<Quiz> {
     const accessToken = localStorage.getItem('ll_access_token');
-    const res = await fetch(`${API_BASE_URL}/quizzes/${id}`, {
+    const res = await authenticatedFetch(`${API_BASE_URL}/quizzes/${id}`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
       },
@@ -403,7 +428,7 @@ export const MockAPI = {
     const isUpdate = !!quizData.id;
     const url = isUpdate ? `${API_BASE_URL}/quizzes/${quizData.id}` : `${API_BASE_URL}/quizzes`;
     
-    const res = await fetch(url, {
+    const res = await authenticatedFetch(url, {
       method: isUpdate ? 'PUT' : 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -423,7 +448,7 @@ export const MockAPI = {
 
   async deleteQuiz(id: string): Promise<void> {
     const accessToken = localStorage.getItem('ll_access_token');
-    const res = await fetch(`${API_BASE_URL}/quizzes/${id}`, {
+    const res = await authenticatedFetch(`${API_BASE_URL}/quizzes/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -437,7 +462,7 @@ export const MockAPI = {
 
   async publishQuiz(quizId: string): Promise<string> {
     const accessToken = localStorage.getItem('ll_access_token');
-    const res = await fetch(`${API_BASE_URL}/quizzes/${quizId}/publish`, {
+    const res = await authenticatedFetch(`${API_BASE_URL}/quizzes/${quizId}/publish`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -497,7 +522,7 @@ export const MockAPI = {
 
   async nextQuestion(code: string): Promise<QuizSession> {
     const accessToken = localStorage.getItem('ll_access_token');
-    const res = await fetch(`${API_BASE_URL}/sessions/${code}/next`, {
+    const res = await authenticatedFetch(`${API_BASE_URL}/sessions/${code}/next`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -517,7 +542,7 @@ export const MockAPI = {
 
   async endSession(code: string): Promise<QuizSession> {
     const accessToken = localStorage.getItem('ll_access_token');
-    const res = await fetch(`${API_BASE_URL}/sessions/${code}/end`, {
+    const res = await authenticatedFetch(`${API_BASE_URL}/sessions/${code}/end`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -532,7 +557,7 @@ export const MockAPI = {
 
   async abandonSession(code: string): Promise<any> {
     const accessToken = localStorage.getItem('ll_access_token');
-    const res = await fetch(`${API_BASE_URL}/sessions/${code}/abandon`, {
+    const res = await authenticatedFetch(`${API_BASE_URL}/sessions/${code}/abandon`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -547,7 +572,7 @@ export const MockAPI = {
   
   async getQuizAnalytics(quizId: string): Promise<any[]> {
     const accessToken = localStorage.getItem('ll_access_token');
-    const res = await fetch(`${API_BASE_URL}/analytics/quiz/${quizId}`, {
+    const res = await authenticatedFetch(`${API_BASE_URL}/analytics/quiz/${quizId}`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
       },
@@ -559,7 +584,7 @@ export const MockAPI = {
 
   async getOverallAnalytics(): Promise<{ totalPlays: number; avgParticipants: number; quizzesStats: any[] }> {
     const accessToken = localStorage.getItem('ll_access_token');
-    const res = await fetch(`${API_BASE_URL}/analytics/overall`, {
+    const res = await authenticatedFetch(`${API_BASE_URL}/analytics/overall`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
       },

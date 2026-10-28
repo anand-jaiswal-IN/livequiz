@@ -8,6 +8,7 @@ interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  loginConflict: boolean;
 }
 
 const initialState: AuthState = {
@@ -17,16 +18,17 @@ const initialState: AuthState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  loginConflict: false,
 };
 
 export const loginUser = createAsyncThunk(
   'auth/login',
-  async ({ email, password }: any, { rejectWithValue }) => {
+  async ({ email, password, forceRevokeExistingSession = false }: { email: string; password: string; forceRevokeExistingSession?: boolean }, { rejectWithValue }) => {
     try {
-      const response = await MockAPI.login(email, password);
+      const response = await MockAPI.login(email, password, forceRevokeExistingSession);
       return response;
     } catch (err: any) {
-      return rejectWithValue(err.message || 'Login failed');
+      return rejectWithValue({ message: err.message || 'Login failed', code: err.code });
     }
   }
 );
@@ -78,6 +80,7 @@ const authSlice = createSlice({
       state.refreshToken = null;
       state.isAuthenticated = false;
       state.error = null;
+      state.loginConflict = false;
     },
     initializeAuth: (state) => {
       if (typeof window !== 'undefined') {
@@ -94,6 +97,7 @@ const authSlice = createSlice({
     },
     clearAuthError: (state) => {
       state.error = null;
+      state.loginConflict = false;
     }
   },
   extraReducers: (builder) => {
@@ -101,6 +105,7 @@ const authSlice = createSlice({
     builder.addCase(loginUser.pending, (state) => {
       state.loading = true;
       state.error = null;
+      state.loginConflict = false;
     });
     builder.addCase(loginUser.fulfilled, (state, action: PayloadAction<any>) => {
       state.loading = false;
@@ -112,7 +117,8 @@ const authSlice = createSlice({
     });
     builder.addCase(loginUser.rejected, (state, action: PayloadAction<any>) => {
       state.loading = false;
-      state.error = action.payload;
+      state.error = action.payload?.message || 'Login failed';
+      state.loginConflict = action.payload?.code === 'ACTIVE_SESSION';
     });
 
     // Register

@@ -27,6 +27,7 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, "Password is required"),
+  forceRevokeExistingSession: z.boolean().optional(),
 });
 
 export const refreshSchema = z.object({
